@@ -1,4 +1,5 @@
-
+using IronDomeApi.Middlewares.Attack;
+using IronDomeApi.Middlewares.Global;
 namespace IronDomeApi
 {
     public class Program
@@ -24,6 +25,19 @@ namespace IronDomeApi
             }
 
             app.UseAuthorization();
+
+            app.UseMiddleware<GlobalLoggingMiddleware>();
+
+            app.UseWhen(
+                context =>
+                context.Request.Path.StartsWithSegments("/api/attacks"),
+                appBuilder =>
+                {
+                    appBuilder.UseMiddleware<JwtValidationMiddleware>();
+                    appBuilder.UseMiddleware<AttackLoggingMiddleware>();
+
+
+                });
 
 
             app.MapControllers();
